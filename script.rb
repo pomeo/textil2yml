@@ -25,20 +25,23 @@ a.get('http://www.textilgroup.ru/xml/postelinoe_belie.zip').save!('postelinoe_be
 # распаковываем архив
 Zip::File.open('postelinoe_belie.zip') do |zipfile|
   zipfile.each do |file|
-    file.extract('output.xml')
+    file.extract('input.xml')
   end
 end
 
 # парсим скаченный xml
-doc = Nokogiri.XML(File.open('output.xml', 'rb'))
+doc = Nokogiri.XML(File.open('input.xml', 'rb'))
 
 @xml = doc.xpath('//shop/products/product').map do |i|
   {
+    'id' => i['id'],
     'cat' => i.at_xpath('category').content,
     'art' => i.at_xpath('articul').content,
     'price' => i.at_xpath('price').content,
     'desc' => i.at_xpath('description').content,
-    'img' => i.at_xpath('image_big').content,
+    'img_pw' => i.at_xpath('image_preview').content,
+    'img_b' => i.at_xpath('image_big').content,
+    'img_p' => i.at_xpath('image_pack').content,
     'size' => i.at_xpath('size').content,
     'mat' => i.at_xpath('material').content,
     'brend' => i.at_xpath('brend').content,
@@ -47,4 +50,49 @@ doc = Nokogiri.XML(File.open('output.xml', 'rb'))
     'country' => i.at_xpath('country').content,
     'a' => i.at_xpath('avail').content
   }
+end
+
+# создаём YML
+builder = Nokogiri::XML::Builder.new(:encoding => 'windows-1251') do |yml|
+  yml.doc.create_internal_subset('yml_catalog', nil, 'http://partner.market.yandex.ru/pages/help/shops.dtd')
+  yml.yml_catalog(:date => DateTime.now.new_offset(4.0/24).strftime('%Y-%m-%d %H:%M')) {
+  yml.shop {
+    yml.name 'Королевский сон'
+    yml.company 'Индивидуальный Предприниматель Запорожец Диана Сергеевна,  ОГРН 310254009800012 от 8 апреля 2010г.'
+    yml.url 'http://xn--b1afkebcevcagqrd.xn--p1ai'
+  }
+  yml.currencies {
+    yml.currency(:id => 'RUR', :rate => '1')
+  }
+  yml.categories {
+    yml.category(:id => '1') {
+      yml.text('Постельное белье оптом')
+    }
+  }
+  yml.local_delivery_cost '300'
+  yml.offers {
+    @xml.each do |o|
+      yml.offer(:id => o['id'], :available => o['a'] == '1' ? 'true' : 'false') {
+        yml.price o['price']
+        yml.currencyId '1'
+        yml.categoryId '1'
+        yml.picture o['img_pw']
+        yml.picture o['img_b']
+        yml.picture o['img_p']
+        yml.vendor o['brend']
+        yml.model ''
+        yml.description o['desc']
+        yml.param(:name => 'Размер') {
+          yml.text(o['size'])
+        }
+        yml.param(:name => 'Материал') {
+          yml.text(o['mat'])
+        }
+        yml.param(:name => 'Артикул') {
+          yml.text(o['art'])
+        }
+      }
+    end
+  }
+}
 end
