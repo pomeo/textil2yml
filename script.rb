@@ -25,7 +25,7 @@ a.get('http://www.textilgroup.ru/xml/postelinoe_belie.zip').save!('postelinoe_be
 # распаковываем архив
 Zip::File.open('postelinoe_belie.zip') do |zipfile|
   zipfile.each do |file|
-    file.extract('input.xml')
+    file.extract('input.xml') { true }
   end
 end
 
