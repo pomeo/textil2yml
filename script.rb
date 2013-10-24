@@ -96,3 +96,8 @@ builder = Nokogiri::XML::Builder.new(:encoding => 'windows-1251') do |yml|
   }
 }
 end
+
+#пишем конечный результат в файл
+File.open('output.xml', 'w') {
+  |file| file.write(builder.to_xml)
+}
