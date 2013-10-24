@@ -59,40 +59,38 @@ builder = Nokogiri::XML::Builder.new(:encoding => 'windows-1251') do |yml|
   yml.shop {
     yml.name 'Королевский сон'
     yml.company 'Индивидуальный Предприниматель Запорожец Диана Сергеевна,  ОГРН 310254009800012 от 8 апреля 2010г.'
-    yml.url 'http://xn--b1afkebcevcagqrd.xn--p1ai'
-  }
-  yml.currencies {
-    yml.currency(:id => 'RUR', :rate => '1')
-  }
-  yml.categories {
-    yml.category(:id => '1') {
-      yml.text('Постельное белье оптом')
+    yml.url 'http://xn--b1afkebcevcagqrd.xn--p1ai/'
+    yml.currencies {
+      yml.currency(:id => 'RUR', :rate => '1')
     }
-  }
-  yml.local_delivery_cost '300'
-  yml.offers {
-    @xml.each do |o|
-      yml.offer(:id => o['id'], :available => o['a'] == '1' ? 'true' : 'false') {
-        yml.price o['price']
-        yml.currencyId '1'
-        yml.categoryId '1'
-        yml.picture o['img_pw']
-        yml.picture o['img_b']
-        yml.picture o['img_p']
-        yml.vendor o['brend']
-        yml.model ''
-        yml.description o['desc']
-        yml.param(:name => 'Размер') {
-          yml.text(o['size'])
-        }
-        yml.param(:name => 'Материал') {
-          yml.text(o['mat'])
-        }
-        yml.param(:name => 'Артикул') {
-          yml.text(o['art'])
-        }
+    yml.categories {
+      yml.category(:id => '1') {
+        yml.text('Постельное белье оптом')
       }
-    end
+    }
+    yml.offers {
+      @xml.each do |o|
+        yml.offer(:id => o['id'], :available => o['a'] == '1' ? 'true' : 'false') {
+          yml.price o['price']
+          yml.currencyId 'RUR'
+          yml.categoryId '1'
+          yml.picture o['img_pw']
+          yml.picture o['img_b']
+          yml.picture o['img_p']
+          yml.name 'Комплект постельного белья'
+          yml.description o['desc']
+          yml.param(:name => 'Размер') {
+            yml.text(o['size'])
+          }
+          yml.param(:name => 'Материал') {
+            yml.text(o['mat'])
+          }
+          yml.param(:name => 'Артикул') {
+            yml.text(o['art'])
+          }
+        }
+      end
+    }
   }
 }
 end
