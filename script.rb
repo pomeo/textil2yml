@@ -20,17 +20,17 @@ end
 
 # используя куку качаем файл
 a.pluggable_parser.default = Mechanize::Download
-a.get('http://www.textilgroup.ru/xml/postelinoe_belie.zip').save!('postelinoe_belie.zip')
+a.get('http://www.textilgroup.ru/xml/postelinoe_belie.zip').save!(File.expand_path(File.join(File.dirname(__FILE__))) + '/postelinoe_belie.zip')
 
 # распаковываем архив
-Zip::File.open('postelinoe_belie.zip') do |zipfile|
+Zip::File.open(File.expand_path(File.join(File.dirname(__FILE__))) + '/postelinoe_belie.zip') do |zipfile|
   zipfile.each do |file|
-    file.extract('input.xml') { true }
+    file.extract(File.expand_path(File.join(File.dirname(__FILE__))) + '/input.xml') { true }
   end
 end
 
 # парсим скаченный xml
-doc = Nokogiri.XML(File.open('input.xml', 'rb'))
+doc = Nokogiri.XML(File.open(File.expand_path(File.join(File.dirname(__FILE__))) + '/input.xml', 'rb'))
 
 @xml = doc.xpath('//shop/products/product').map do |i|
   {
@@ -96,6 +96,6 @@ builder = Nokogiri::XML::Builder.new(:encoding => 'windows-1251') do |yml|
 end
 
 #пишем конечный результат в файл
-File.open('output.xml', 'w') {
+File.open(File.expand_path(File.join(File.dirname(__FILE__))) + '/output.xml', 'w') {
   |file| file.write(builder.to_xml)
 }
